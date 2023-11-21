@@ -34,6 +34,7 @@ import CancellablePromise from 'logic/rest/CancellablePromise';
 import TelemetryInit from 'logic/telemetry/TelemetryInit';
 import LoginQueryClientProvider from 'contexts/LoginQueryClientProvider';
 import PerspectivesBindings from 'components/perspectives/bindings';
+import '@graylog/sawmill/fonts';
 
 Reflux.setPromiseFactory((handlers) => CancellablePromise.of(new Promise(handlers)));
 
