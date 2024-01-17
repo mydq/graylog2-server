@@ -18,6 +18,7 @@ package org.graylog.storage.elasticsearch7.views;
 
 import com.google.common.collect.Maps;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
+import org.graylog.plugins.views.search.ExplainResults;
 import org.graylog.plugins.views.search.Filter;
 import org.graylog.plugins.views.search.GlobalOverride;
 import org.graylog.plugins.views.search.Query;
@@ -216,6 +217,11 @@ public class ElasticsearchBackend implements QueryBackend<ESGeneratedQueryContex
                 return Optional.of(QueryBuilders.queryStringQuery(((QueryStringFilter) filter).query()));
         }
         return Optional.empty();
+    }
+
+    @Override
+    public ExplainResults.Search.Query doExplain(SearchJob job, Query query, ESGeneratedQueryContext queryContext) {
+        return null; //TODO
     }
 
     @WithSpan

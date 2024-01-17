@@ -16,11 +16,15 @@
  */
 package org.graylog.storage.opensearch2.views;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Provider;
+import org.graylog.plugins.views.search.ExplainResults;
+import org.graylog.plugins.views.search.ExplainResults.Search.Query.ExplainResult;
+import org.graylog.plugins.views.search.ExplainResults.Search.Query.ExplainResult.IndexRangeResult;
 import org.graylog.plugins.views.search.Filter;
 import org.graylog.plugins.views.search.GlobalOverride;
 import org.graylog.plugins.views.search.Query;
@@ -169,7 +173,7 @@ public class OpenSearchBackend implements QueryBackend<OSGeneratedQueryContext> 
 
                     if (effectiveStreamIds.stream().noneMatch(s -> s.startsWith(Stream.DATASTREAM_PREFIX))) {
                         searchTypeOverrides
-                            .must(QueryBuilders.termsQuery(Message.FIELD_STREAMS, effectiveStreamIds));
+                                .must(QueryBuilders.termsQuery(Message.FIELD_STREAMS, effectiveStreamIds));
                     }
 
                     searchType.query().ifPresent(searchTypeQuery -> {
@@ -218,6 +222,26 @@ public class OpenSearchBackend implements QueryBackend<OSGeneratedQueryContext> 
                 return Optional.of(QueryBuilders.queryStringQuery(((QueryStringFilter) filter).query()));
         }
         return Optional.empty();
+    }
+
+    @Override
+    public ExplainResults.Search.Query doExplain(SearchJob job, Query query, OSGeneratedQueryContext queryContext) {
+        final ImmutableMap.Builder<String, ExplainResult> builder = ImmutableMap.builder();
+        final Map<String, SearchSourceBuilder> searchTypeQueries = queryContext.searchTypeQueries();
+
+        final DateTime nowUTCSharedBetweenSearchTypes = Tools.nowUTC();
+
+        query.searchTypes().forEach(s -> {
+            final Set<IndexRangeResult> indicesForQuery = indexLookup.indexRangesForStreamsInTimeRange(
+                            query.effectiveStreams(s), query.effectiveTimeRange(s, nowUTCSharedBetweenSearchTypes))
+                    .stream().map(IndexRangeResult::fromIndexRange).collect(Collectors.toSet());
+
+            final var queryString = searchTypeQueries.get(s.id()).toString();
+
+            builder.put(s.id(), new ExplainResult(queryString, indicesForQuery));
+        });
+
+        return new ExplainResults.Search.Query(builder.build());
     }
 
     @Override
