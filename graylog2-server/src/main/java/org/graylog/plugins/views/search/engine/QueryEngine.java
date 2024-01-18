@@ -106,7 +106,7 @@ public class QueryEngine {
                                 }
                                 LOG.debug("Running query {} failed: {}", query.id(), cause);
                                 searchJob.addError(error);
-                                return org.graylog.plugins.views.search.QueryResult.failedQueryWithError(query, error);
+                                return QueryResult.failedQueryWithError(query, error);
                             }
                             return queryResult;
                         })

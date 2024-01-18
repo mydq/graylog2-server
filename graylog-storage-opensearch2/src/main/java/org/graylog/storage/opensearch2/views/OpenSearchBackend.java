@@ -248,7 +248,7 @@ public class OpenSearchBackend implements QueryBackend<OSGeneratedQueryContext> 
     @WithSpan
     public QueryResult doRun(SearchJob job, Query query, OSGeneratedQueryContext queryContext) {
         if (query.searchTypes().isEmpty()) {
-            return org.graylog.plugins.views.search.QueryResult.builder()
+            return QueryResult.builder()
                     .query(query)
                     .searchTypes(Collections.emptyMap())
                     .errors(new HashSet<>(queryContext.errors()))
@@ -328,7 +328,7 @@ public class OpenSearchBackend implements QueryBackend<OSGeneratedQueryContext> 
         }
 
         LOG.debug("Query {} ran for job {}", query.id(), job.getId());
-        return org.graylog.plugins.views.search.QueryResult.builder()
+        return QueryResult.builder()
                 .query(query)
                 .searchTypes(resultsMap)
                 .errors(new HashSet<>(queryContext.errors()))

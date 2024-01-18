@@ -17,7 +17,7 @@
 package org.graylog.plugins.views.search.engine;
 
 import com.google.common.base.Stopwatch;
-import org.graylog.plugins.views.search.ExplainResults;
+import org.graylog.plugins.views.search.ExplainResults.SearchResult.QueryExplainResult;
 import org.graylog.plugins.views.search.GlobalOverride;
 import org.graylog.plugins.views.search.Query;
 import org.graylog.plugins.views.search.QueryResult;
@@ -99,7 +99,7 @@ public interface QueryBackend<T extends GeneratedQueryContext> {
             // back to a generic error so we never throw exceptions into the engine.
             final QueryError queryError = new QueryError(query, e);
             generatedQueryContext.addError(queryError);
-            return org.graylog.plugins.views.search.QueryResult.failedQueryWithError(query, queryError);
+            return QueryResult.failedQueryWithError(query, queryError);
         }
     }
 
@@ -116,7 +116,7 @@ public interface QueryBackend<T extends GeneratedQueryContext> {
      */
     QueryResult doRun(SearchJob job, Query query, T queryContext);
 
-    default ExplainResults.SearchResult.QueryExplainResult explain(SearchJob job, Query query, GeneratedQueryContext queryContext) {
+    default QueryExplainResult explain(SearchJob job, Query query, GeneratedQueryContext queryContext) {
         //noinspection unchecked
         return doExplain(job, query, (T) queryContext);
     }
@@ -129,7 +129,7 @@ public interface QueryBackend<T extends GeneratedQueryContext> {
      * @param queryContext the generated query by {@link #generate(Query, Set)}
      * @return the explain result for the query
      */
-    ExplainResults.SearchResult.QueryExplainResult doExplain(SearchJob job, Query query, T queryContext);
+    QueryExplainResult doExplain(SearchJob job, Query query, T queryContext);
 
     default boolean isSearchTypeWithError(T queryContext, String searchTypeId) {
         return queryContext.errors().stream()
