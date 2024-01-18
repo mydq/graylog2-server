@@ -106,13 +106,10 @@ public class SearchExecutor {
 
     public ExplainResults explain(Search search, SearchUser searchUser, ExecutionState executionState) {
         final Search preValidationSearch = searchNormalization.preValidation(search, searchUser, executionState);
-
         final Set<SearchError> validationErrors = searchValidation.validate(preValidationSearch, searchUser);
-
         final Search normalizedSearch = searchNormalization.postValidation(preValidationSearch, searchUser, executionState);
 
         return queryEngine.explain(searchJobService.create(normalizedSearch, searchUser.username()), validationErrors);
-
     }
 
     private SearchJob searchJobWithFatalError(SearchJob searchJob, Set<SearchError> validationErrors) {

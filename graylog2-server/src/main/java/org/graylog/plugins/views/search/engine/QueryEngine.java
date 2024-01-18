@@ -74,11 +74,12 @@ public class QueryEngine {
     }
 
     public ExplainResults explain(SearchJob searchJob, Set<SearchError> validationErrors) {
-        final Map<String, ExplainResults.Search.Query> queries = searchJob.getSearch().queries().stream().collect(Collectors.toMap(Query::id, q -> {
+        final Map<String, ExplainResults.Search.Query> queries = searchJob.getSearch().queries().stream()
+                .collect(Collectors.toMap(Query::id, q -> {
+                    final GeneratedQueryContext generatedQueryContext = backend.generate(q, Set.of());
 
-            final GeneratedQueryContext generatedQueryContext = backend.generate(q, Set.of());
-            return backend.explain(searchJob, q, generatedQueryContext);
-        }));
+                    return backend.explain(searchJob, q, generatedQueryContext);
+                }));
 
         return new ExplainResults(searchJob.getSearchId(), new ExplainResults.Search(queries), validationErrors);
     }
