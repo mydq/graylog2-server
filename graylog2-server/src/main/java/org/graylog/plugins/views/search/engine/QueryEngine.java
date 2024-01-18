@@ -74,14 +74,14 @@ public class QueryEngine {
     }
 
     public ExplainResults explain(SearchJob searchJob, Set<SearchError> validationErrors) {
-        final Map<String, ExplainResults.Search.Query> queries = searchJob.getSearch().queries().stream()
+        final Map<String, ExplainResults.SearchResult.QueryExplainResult> queries = searchJob.getSearch().queries().stream()
                 .collect(Collectors.toMap(Query::id, q -> {
                     final GeneratedQueryContext generatedQueryContext = backend.generate(q, Set.of());
 
                     return backend.explain(searchJob, q, generatedQueryContext);
                 }));
 
-        return new ExplainResults(searchJob.getSearchId(), new ExplainResults.Search(queries), validationErrors);
+        return new ExplainResults(searchJob.getSearchId(), new ExplainResults.SearchResult(queries), validationErrors);
     }
 
     @WithSpan
@@ -106,7 +106,7 @@ public class QueryEngine {
                                 }
                                 LOG.debug("Running query {} failed: {}", query.id(), cause);
                                 searchJob.addError(error);
-                                return QueryResult.failedQueryWithError(query, error);
+                                return org.graylog.plugins.views.search.QueryResult.failedQueryWithError(query, error);
                             }
                             return queryResult;
                         })

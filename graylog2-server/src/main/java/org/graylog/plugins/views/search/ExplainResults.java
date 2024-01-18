@@ -23,11 +23,11 @@ import org.graylog2.indexer.ranges.IndexRange;
 import java.util.Map;
 import java.util.Set;
 
-public record ExplainResults(String search_id, Search search, Set<SearchError> searchErrors) {
+public record ExplainResults(String search_id, SearchResult search, Set<SearchError> searchErrors) {
 
-    public record Search(Map<String, Query> queries) {
+    public record SearchResult(Map<String, QueryExplainResult> queries) {
 
-        public record Query(Map<String, ExplainResult> searchTypes) {
+        public record QueryExplainResult(Map<String, ExplainResult> searchTypes) {
 
             public record ExplainResult(String queryString, Set<IndexRangeResult> searchedIndexRanges) {
 

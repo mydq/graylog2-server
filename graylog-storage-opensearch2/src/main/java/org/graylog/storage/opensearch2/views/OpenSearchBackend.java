@@ -23,8 +23,8 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Provider;
 import org.graylog.plugins.views.search.ExplainResults;
-import org.graylog.plugins.views.search.ExplainResults.Search.Query.ExplainResult;
-import org.graylog.plugins.views.search.ExplainResults.Search.Query.ExplainResult.IndexRangeResult;
+import org.graylog.plugins.views.search.ExplainResults.SearchResult.QueryExplainResult.ExplainResult;
+import org.graylog.plugins.views.search.ExplainResults.SearchResult.QueryExplainResult.ExplainResult.IndexRangeResult;
 import org.graylog.plugins.views.search.Filter;
 import org.graylog.plugins.views.search.GlobalOverride;
 import org.graylog.plugins.views.search.Query;
@@ -225,7 +225,7 @@ public class OpenSearchBackend implements QueryBackend<OSGeneratedQueryContext> 
     }
 
     @Override
-    public ExplainResults.Search.Query doExplain(SearchJob job, Query query, OSGeneratedQueryContext queryContext) {
+    public ExplainResults.SearchResult.QueryExplainResult doExplain(SearchJob job, Query query, OSGeneratedQueryContext queryContext) {
         final ImmutableMap.Builder<String, ExplainResult> builder = ImmutableMap.builder();
         final Map<String, SearchSourceBuilder> searchTypeQueries = queryContext.searchTypeQueries();
 
@@ -241,14 +241,14 @@ public class OpenSearchBackend implements QueryBackend<OSGeneratedQueryContext> 
             builder.put(s.id(), new ExplainResult(queryString, indicesForQuery));
         });
 
-        return new ExplainResults.Search.Query(builder.build());
+        return new ExplainResults.SearchResult.QueryExplainResult(builder.build());
     }
 
     @Override
     @WithSpan
     public QueryResult doRun(SearchJob job, Query query, OSGeneratedQueryContext queryContext) {
         if (query.searchTypes().isEmpty()) {
-            return QueryResult.builder()
+            return org.graylog.plugins.views.search.QueryResult.builder()
                     .query(query)
                     .searchTypes(Collections.emptyMap())
                     .errors(new HashSet<>(queryContext.errors()))
@@ -328,7 +328,7 @@ public class OpenSearchBackend implements QueryBackend<OSGeneratedQueryContext> 
         }
 
         LOG.debug("Query {} ran for job {}", query.id(), job.getId());
-        return QueryResult.builder()
+        return org.graylog.plugins.views.search.QueryResult.builder()
                 .query(query)
                 .searchTypes(resultsMap)
                 .errors(new HashSet<>(queryContext.errors()))
