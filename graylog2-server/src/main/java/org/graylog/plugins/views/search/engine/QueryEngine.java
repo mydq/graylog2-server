@@ -74,7 +74,7 @@ public class QueryEngine {
     }
 
     public ExplainResults explain(SearchJob searchJob, Set<SearchError> validationErrors) {
-        final Map<String, ExplainResults.SearchResult.QueryExplainResult> queries = searchJob.getSearch().queries().stream()
+        final Map<String, ExplainResults.QueryExplainResult> queries = searchJob.getSearch().queries().stream()
                 .collect(Collectors.toMap(Query::id, q -> {
                     final GeneratedQueryContext generatedQueryContext = backend.generate(q, Set.of());
 

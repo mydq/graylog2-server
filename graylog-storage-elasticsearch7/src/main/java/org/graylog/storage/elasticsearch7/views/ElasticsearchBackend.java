@@ -220,23 +220,23 @@ public class ElasticsearchBackend implements QueryBackend<ESGeneratedQueryContex
     }
 
     @Override
-    public ExplainResults.SearchResult.QueryExplainResult doExplain(SearchJob job, Query query, ESGeneratedQueryContext queryContext) {
-        final ImmutableMap.Builder<String, ExplainResults.SearchResult.QueryExplainResult.ExplainResult> builder = ImmutableMap.builder();
+    public ExplainResults.QueryExplainResult doExplain(SearchJob job, Query query, ESGeneratedQueryContext queryContext) {
+        final ImmutableMap.Builder<String, ExplainResults.ExplainResult> builder = ImmutableMap.builder();
         final Map<String, SearchSourceBuilder> searchTypeQueries = queryContext.searchTypeQueries();
 
         final DateTime nowUTCSharedBetweenSearchTypes = Tools.nowUTC();
 
         query.searchTypes().forEach(s -> {
-            final Set<ExplainResults.SearchResult.QueryExplainResult.ExplainResult.IndexRangeResult> indicesForQuery = indexLookup.indexRangesForStreamsInTimeRange(
+            final Set<ExplainResults.IndexRangeResult> indicesForQuery = indexLookup.indexRangesForStreamsInTimeRange(
                             query.effectiveStreams(s), query.effectiveTimeRange(s, nowUTCSharedBetweenSearchTypes))
-                    .stream().map(ExplainResults.SearchResult.QueryExplainResult.ExplainResult.IndexRangeResult::fromIndexRange).collect(Collectors.toSet());
+                    .stream().map(ExplainResults.IndexRangeResult::fromIndexRange).collect(Collectors.toSet());
 
             final var queryString = searchTypeQueries.get(s.id()).toString();
 
-            builder.put(s.id(), new ExplainResults.SearchResult.QueryExplainResult.ExplainResult(queryString, indicesForQuery));
+            builder.put(s.id(), new ExplainResults.ExplainResult(queryString, indicesForQuery));
         });
 
-        return new ExplainResults.SearchResult.QueryExplainResult(builder.build());
+        return new ExplainResults.QueryExplainResult(builder.build());
     }
 
     @WithSpan

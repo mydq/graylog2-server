@@ -23,8 +23,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.inject.Provider;
 import org.graylog.plugins.views.search.ExplainResults;
-import org.graylog.plugins.views.search.ExplainResults.SearchResult.QueryExplainResult.ExplainResult;
-import org.graylog.plugins.views.search.ExplainResults.SearchResult.QueryExplainResult.ExplainResult.IndexRangeResult;
 import org.graylog.plugins.views.search.Filter;
 import org.graylog.plugins.views.search.GlobalOverride;
 import org.graylog.plugins.views.search.Query;
@@ -225,23 +223,23 @@ public class OpenSearchBackend implements QueryBackend<OSGeneratedQueryContext> 
     }
 
     @Override
-    public ExplainResults.SearchResult.QueryExplainResult doExplain(SearchJob job, Query query, OSGeneratedQueryContext queryContext) {
-        final ImmutableMap.Builder<String, ExplainResult> builder = ImmutableMap.builder();
+    public ExplainResults.QueryExplainResult doExplain(SearchJob job, Query query, OSGeneratedQueryContext queryContext) {
+        final ImmutableMap.Builder<String, ExplainResults.ExplainResult> builder = ImmutableMap.builder();
         final Map<String, SearchSourceBuilder> searchTypeQueries = queryContext.searchTypeQueries();
 
         final DateTime nowUTCSharedBetweenSearchTypes = Tools.nowUTC();
 
         query.searchTypes().forEach(s -> {
-            final Set<IndexRangeResult> indicesForQuery = indexLookup.indexRangesForStreamsInTimeRange(
+            final Set<ExplainResults.IndexRangeResult> indicesForQuery = indexLookup.indexRangesForStreamsInTimeRange(
                             query.effectiveStreams(s), query.effectiveTimeRange(s, nowUTCSharedBetweenSearchTypes))
-                    .stream().map(IndexRangeResult::fromIndexRange).collect(Collectors.toSet());
+                    .stream().map(ExplainResults.IndexRangeResult::fromIndexRange).collect(Collectors.toSet());
 
             final var queryString = searchTypeQueries.get(s.id()).toString();
 
-            builder.put(s.id(), new ExplainResult(queryString, indicesForQuery));
+            builder.put(s.id(), new ExplainResults.ExplainResult(queryString, indicesForQuery));
         });
 
-        return new ExplainResults.SearchResult.QueryExplainResult(builder.build());
+        return new ExplainResults.QueryExplainResult(builder.build());
     }
 
     @Override

@@ -26,21 +26,21 @@ import java.util.Set;
 public record ExplainResults(String search_id, SearchResult search, Set<SearchError> searchErrors) {
 
     public record SearchResult(Map<String, QueryExplainResult> queries) {
+    }
 
-        public record QueryExplainResult(Map<String, ExplainResult> searchTypes) {
+    public record QueryExplainResult(Map<String, ExplainResult> searchTypes) {
+    }
 
-            public record ExplainResult(String queryString, Set<IndexRangeResult> searchedIndexRanges) {
+    public record ExplainResult(String queryString, Set<IndexRangeResult> searchedIndexRanges) {
+    }
 
-                public record IndexRangeResult(String indexName, long begin, long end, boolean isWarmTiered) {
-                    public IndexRangeResult(String indexName, long begin, long end) {
-                        this(indexName, begin, end, MongoIndexSet.indexHasWarmInfix(indexName));
-                    }
+    public record IndexRangeResult(String indexName, long begin, long end, boolean isWarmTiered) {
+        public IndexRangeResult(String indexName, long begin, long end) {
+            this(indexName, begin, end, MongoIndexSet.indexHasWarmInfix(indexName));
+        }
 
-                    public static IndexRangeResult fromIndexRange(IndexRange indexRange) {
-                        return new IndexRangeResult(indexRange.indexName(), indexRange.begin().getMillis(), indexRange.end().getMillis());
-                    }
-                }
-            }
+        public static IndexRangeResult fromIndexRange(IndexRange indexRange) {
+            return new IndexRangeResult(indexRange.indexName(), indexRange.begin().getMillis(), indexRange.end().getMillis());
         }
     }
 }
